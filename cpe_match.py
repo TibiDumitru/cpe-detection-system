@@ -7,6 +7,8 @@ from const import (
     ES_HOST,
     ES_PORT
 )
+import cpe
+import cpe.cpe2_3_uri
 
 from test_mappings import ApplicationCpeMapping
 
@@ -71,6 +73,11 @@ def count_entries():
     es.indices.refresh('cpes')
     res = es.cat.count('cpes', params={"format": "json"})
     print(res)
+
+def cpe23_uri_to_fs(cpe23_uri):
+    cpe = cpe.cpe2_3_uri.CPE2_3_URI(cpe23_uri)
+    
+    return cpe.as_fs()
 
 def search_app_cpe(application_name):
     # print(f"Finding the corresponding CPE for {application_name}...")
