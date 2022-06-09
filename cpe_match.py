@@ -156,11 +156,11 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--update', action="store_true", dest="UPDATE", help="update index with the latest CPE dictionary data", default=False)
-    parser.add_argument('-n', '--name', dest="NAME", help="the application name", default=None)
-    parser.add_argument('--csvfile', action="store_true", dest="CSV_FILE", help="save the csv file containing the cpe dictionary data", default=False)
-    parser.add_argument('--max-results', type=int, dest="MAX_RESULTS", help="maximum number of results for the given title", default=1)
-    parser.add_argument('--test', action="store_true", dest="TEST", help="Test accuracy")
+    parser.add_argument('--update', action="store_true", dest="UPDATE", help="Update ES index with the latest CPE dictionary data", default=False)
+    parser.add_argument('--csvfile', action="store_true", dest="CSV_FILE", help="Save the csv file containing the cpe dictionary data", default=False)
+    parser.add_argument('-n', '--name', dest="NAME", help="The product release title", default=None)
+    parser.add_argument('--max-results', type=int, dest="MAX_RESULTS", help="Maximum number of results for the given title", default=1)
+    parser.add_argument('--test', action="store_true", dest="TEST", help="Test accuracy against a set of tests")
     args = parser.parse_args()
 
     main(args)
