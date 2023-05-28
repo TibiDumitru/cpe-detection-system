@@ -25,8 +25,11 @@ es = Elasticsearch(
 
 def load_cpe_data(save_csv_file):
     df = pd.read_xml(CPE_DICT_URL, xpath=".//doc:cpe-item", namespaces={'doc': 'http://cpe.mitre.org/dictionary/2.0'})
-    if save_csv_file:
-        df.to_csv('cpes.csv')
+
+
+
+    # if save_csv_file:
+    #     df.to_csv('cpes.csv')
     return df
 
 def df_from_file():
@@ -52,8 +55,8 @@ def create_index():
         },
         "mappings": {
             "properties": {
-                "cpe": { "type": "text" },
-                "title": { "type": "text" },
+                "cpe": { "type": "text"},
+                "title": { "type": "text", "analyzer": "whitespace" },
             }
         }
 	}
@@ -81,33 +84,49 @@ def search_app_cpe(application_name):
     body2 = '''{
         "query": {
             "match": {
-            "title": {
-                "query":''' + application_name + '''
-                "operator": "and"
-            }
+                "title": {
+                    "query":''' + f'"{application_name}",' + '''
+                }
             }
         }
     }
     '''
 
+    body3 = '''{
+    "query": {
+        "bool": {
+            "must": [
+                {
+                    "match": {
+                        "title": ''' + f'"{application_name}"' + '''
+                    }
+                }
+            ],
+            "should": [
+            {
+                "match": {
+                        "title": ''' + f'"{application_name}"' + '''
+                        
+                    }
+                }
+            ]
+        }
+    }
+    }'''
+
+
     import json
 
-    r = requests.get(url='https://localhost:10000/cpes/_search', data=body2, verify=False, headers=headers)
-    print(r.json())
-    result = json.load(r.json())
+    response = requests.get(url='https://localhost:10000/cpes/_search/', data=body3, verify=False, headers=headers)
+    # print(response.text)
 
-
-    # query_body = {
-    #     "query": {
-    #         "match": {
-    #             "title": application_name+"^4",
-    #             }
-    #         }
-    # }
-
-    # result = es.search(body=query_body, index="cpes", size=args.MAX_RESULTS)
-
-    return result['hits']['hits']
+    if response.status_code == 400:
+        print(response.request.url)
+    elif response.status_code == 200:
+        try:
+            return response.json()['hits']['hits']
+        except:
+            return None
 
 def check_accuracy():
     for key, value in application_cpe_mapping.items():
@@ -120,6 +139,9 @@ def check_accuracy():
             print(f'CPE {cpe_es} does not match with expected {cpe_dict}')
 
 def main(args):
+
+    # es.indices.delete(index='cpes', ignore=[400, 404])
+    # exit(0)
 
     if args.TEST:
         check_accuracy()
@@ -144,7 +166,7 @@ def main(args):
         exit(1)
 
     # count_entries()
-    # print(search_app_cpe(name))
+    print(search_app_cpe(name))
 
 
 if __name__ == '__main__':
