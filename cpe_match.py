@@ -17,13 +17,14 @@ application_cpe_mapping = ApplicationCpeMapping().WELL_KNOWN_APPLICATION_CPE
 
 CPE_DICT_URL = "https://nvd.nist.gov/feeds/xml/cpe/dictionary/official-cpe-dictionary_v2.3.xml.zip"
 
-es = Elasticsearch(
-    host=ES_HOST,
-    port=ES_PORT,
-    scheme="https",
-    verify_certs=False,
-    ssl_show_warn=False,
-)
+# es = Elasticsearch(
+#     host=ES_HOST,
+#     port=ES_PORT,
+#     scheme="https",
+#     verify_certs=False,
+#     ssl_show_warn=False,
+# )
+es = Elasticsearch("http://localhost:9200")
 
 def load_cpe_data(save_csv_file):
     df = pd.read_xml(CPE_DICT_URL, xpath=".//doc:cpe-item", namespaces={'doc': 'http://cpe.mitre.org/dictionary/2.0'})
@@ -85,7 +86,7 @@ def search_app_cpe(application_name):
     headers = {"Content-Type": "application/json; charset=utf-8"}
 
 
-    body2 = '''{
+    body = '''{
         "query": {
             "match": {
             "title": {
@@ -99,7 +100,7 @@ def search_app_cpe(application_name):
 
     import json
 
-    r = requests.get(url='https://localhost:10000/cpes/_search', data=body2, verify=False, headers=headers)
+    r = requests.get(url='https://localhost:10000/cpes/_search', data=body, verify=False, headers=headers)
     print(r.json())
     result = json.load(r.json())
 
@@ -127,16 +128,15 @@ def check_accuracy():
             print(f'CPE {cpe_es} does not match with expected {cpe_dict}')
 
 def main(args):
-
     if args.TEST:
         check_accuracy()
         exit(0)
 
     if args.UPDATE:
-        # df = load_cpe_data(args.CSV_FILE)
-        # print('CPE data loaded')
-        new_df = df_from_file()
-        update_index(new_df)
+        df = load_cpe_data(args.CSV_FILE)
+        print('CPE data loaded')
+        # new_df = df_from_file()
+        update_index(df)
         exit(0)
 
     no_results = args.MAX_RESULTS
