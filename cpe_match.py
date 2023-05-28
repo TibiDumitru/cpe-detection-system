@@ -24,7 +24,7 @@ CPE_DICT_URL = "https://nvd.nist.gov/feeds/xml/cpe/dictionary/official-cpe-dicti
 #     verify_certs=False,
 #     ssl_show_warn=False,
 # )
-es = Elasticsearch("http://localhost:9200")
+es = Elasticsearch("http://98.71.233.2:9200")
 
 def load_cpe_data(save_csv_file):
     df = pd.read_xml(CPE_DICT_URL, xpath=".//doc:cpe-item", namespaces={'doc': 'http://cpe.mitre.org/dictionary/2.0'})
@@ -60,11 +60,11 @@ def create_index():
             }
         }
 	}
-    es.indices.create(index = 'cpes', body = request_body)
+    es.indices.create(index="cpes", body=request_body)
 
 
 def update_index(df):
-    if not es.indices.exists('cpes'):
+    if not es.indices.exists(index="cpes"):
         print("Creating index 'cpes'")
         create_index()
     
@@ -100,7 +100,7 @@ def search_app_cpe(application_name):
 
     import json
 
-    r = requests.get(url='https://localhost:10000/cpes/_search', data=body, verify=False, headers=headers)
+    r = requests.get(url='http://98.71.233.2:9200/cpes/_search', data=body, verify=False, headers=headers)
     print(r.json())
     result = json.load(r.json())
 

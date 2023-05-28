@@ -9,7 +9,7 @@ https://vpc-cpe-softwares-xut4os46csf5fnb2ycxijwbfk4.eu-west-2.es.amazonaws.com/
 To delete index:
 curl -k -X DELETE 'https://localhost:10000/cpes'
 
-curl -k -XGET --header 'Content-Type: application/json' https://localhost:10000/cpes/_search -d '{
+curl -k -XGET - -header 'Content-Type: application/json' https://localhost:10000/cpes/_search -d '{
     "query" : {
         "multi_match" : {
             "query" : "Intel Atom C2508 Firmware",
@@ -22,6 +22,4 @@ curl -k -XGET --header 'Content-Type: application/json' https://localhost:10000/
 ## Using docker container
 docker network create elastic
 docker pull docker.elastic.co/elasticsearch/elasticsearch:8.8.0
-docker run --name elasticsearch --net elastic -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" -t docker.elastic.co/elasticsearch/elasticsearch:8.8.0
-
-
+docker run -d --name elasticsearch --net elastic -p 9200:9200 -p 9300:9300 -e discovery.type=single-node -e xpack.security.enabled=false -t docker.elastic.co/elasticsearch/elasticsearch:8.8.0
